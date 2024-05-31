@@ -1,0 +1,47 @@
+version: '3.7'
+
+services:
+
+  php:
+    container_name: symfony7_php
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    volumes:
+      - files:/var/www/symfony/
+      - /home/david/symfony7/build/php/:/usr/local/etc/php/
+    networks:
+      dbm_net:
+        ipv4_address: 172.20.0.2
+
+
+  nginx:
+    container_name: symfony7_nginx
+    depends_on:
+      - php
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    ports:
+      - 5555:80
+      - 5553:443
+    volumes:
+      - files:/var/www/symfony/
+      - /home/david/symfony7/build/nginx/conf.d:/etc/nginx/conf.d/
+    networks:
+      dbm_net:
+        ipv4_address: 172.20.0.10
+
+
+volumes:
+  files: 
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: /home/david/symfony7/files
+
+
+networks:
+  dbm_net:
+    external: true
